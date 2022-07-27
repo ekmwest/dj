@@ -1,0 +1,163 @@
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>ECP65C</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex" />
+
+    <script>
+        const LOG = [
+            ["2022-07-08", 57389],
+            ["2022-07-09", 57394],
+            ["2022-07-12", 57434],
+            ["2022-07-26", 58738]
+        ];
+
+        const RATE_LIMIT = 15000 / 365;
+    </script>
+
+    <script>
+        function expandLog(log, rateLimit) {
+            const startMeter = log[0][1];
+            const startDate = new Date(log[0][0]);
+            startDate.setHours(0, 0, 0, 0);
+
+            const expanded = log.map(item => {
+                const date = new Date(item[0]);
+                date.setHours(0, 0, 0, 0);
+                const distance = Math.round(item[1] - startMeter);
+                const distanceLimit = Math.round((date - startDate) / (24 * 60 * 60 * 1000) * rateLimit);
+
+                return [date, distance, distanceLimit];
+            });
+
+            // Create virtual item for today (unless last item is, in fact, today)
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const lastLogItem = expanded.slice(-1)[0];
+            const lastLogDate = lastLogItem[0];
+            lastLogDate.setHours(0, 0, 0, 0);
+
+            if (today > lastLogDate) {
+                const distance = Math.round(lastLogItem[1]);
+                const distanceLimit = Math.round((today - startDate) / (24 * 60 * 60 * 1000) * rateLimit);
+
+                expanded.push([today, distance, distanceLimit])
+            }
+            return expanded;
+        }
+    </script>
+
+    <script src="https://www.gstatic.com/charts/loader.js"></script>
+
+    <script>
+        const log = expandLog(LOG, RATE_LIMIT);
+
+        document.addEventListener('DOMContentLoaded', () => {
+            drawCredit(log);
+        });
+
+        google.charts.load('current', { packages: ['corechart', 'line'] });
+        google.charts.setOnLoadCallback(drawChart);
+
+        function drawChart() {
+
+            var data = new google.visualization.DataTable();
+            data.addColumn('date', 'Date');
+            data.addColumn('number', 'Log');
+            data.addColumn('number', 'Limit');
+
+            data.addRows(log)
+
+            var options = {
+                hAxis: {
+                    title: ''
+                },
+                vAxis: {
+                    title: 'km'
+                },
+                colors: ['#999', 'red'],
+                legend: 'none',
+                chartArea: { 'width': '75%', 'height': '85%' }
+            };
+
+            var chart = new google.visualization.LineChart(document.getElementById('chart'));
+
+            chart.draw(data, options);
+        }
+
+        function drawCredit(log) {
+            const lastLogItem = log.slice(-1)[0];
+            const distanceCredit = lastLogItem[2] - lastLogItem[1];
+            const timeCredit = distanceCredit / RATE_LIMIT;
+
+            if (distanceCredit < 0) {
+                const creditElement = document.querySelector('#credit');
+                creditElement.classList.add('NEGATIVE');
+            }
+
+            const distanceCreditElement = document.querySelector('#distance-credit');
+            distanceCreditElement.textContent = Math.round(distanceCredit / 10) + ' mil';
+
+            const timeCreditElement = document.querySelector('#time-credit');
+            timeCreditElement.textContent = Math.round(timeCredit) + ' dgr';
+
+        }
+    </script>
+
+    <style>
+        body {
+            font-family: -apple-system, "Segoe UI", Helvetica, sans-serif;
+        }
+
+        main {
+            max-width: 1024px;
+            margin: 0 auto;
+        }
+
+        #credit {
+            display: flex;
+            justify-content: center;
+            margin-top: 2em;
+        }
+
+        #credit-content {
+            padding: 1em 1.8em;
+            border-radius: .9em;
+            font-weight: bold;
+            color: green;
+            border: 2px solid green;
+            background-color: rgba(0, 255, 0, .04);
+        }
+
+        #credit.NEGATIVE #credit-content {
+            color: red;
+            border-color: red;
+            background-color: rgba(255, 0, 0, .05);
+        }
+
+        #credit-space {
+            padding: 0 .4em;
+        }
+
+        #chart {
+            height: 480px;
+        }
+    </style>
+</head>
+
+<body>
+    <main>
+        <div id="credit">
+            <div id="credit-content">
+                <span id="distance-credit">-57 mil</span>
+                <span id="credit-space">/</span>
+                <span id="time-credit">-14 dgr</span>
+            </div>
+        </div>
+        <div id="chart"></div>
+    </main>
+</body>
+
+</html>
