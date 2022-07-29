@@ -8,19 +8,53 @@
     <link rel="shortcut icon" type="image/png" href="/wheel.png" />
     <link rel="apple-touch-icon" href="/wheel.png">
     <script src="/log.js"></script>
+    <script src="https://www.gstatic.com/charts/loader.js"></script>
     <script>
-        const RATE_LIMIT = 15000 / 365;
-    </script>
 
-    <script>
+        /* =====================================================================
+           Constants
+           ===================================================================== */
+
+        const RATE_LIMIT = 15000 / 365;
+        const PERIOD_END = "2023-07-08";
+
+
+        /* =====================================================================
+           Import Log
+           ===================================================================== */
+
+        const log = expandLog(LOG, RATE_LIMIT);
+
+
+        /* =====================================================================
+           Run
+           ===================================================================== */
+
+        google.charts.load('current', { packages: ['corechart', 'line'] });
+        google.charts.setOnLoadCallback(() => drawChart(log));
+
+        document.addEventListener('DOMContentLoaded', () => {
+            drawCredit(log, RATE_LIMIT);
+            drawPeriodCredit(log, RATE_LIMIT);
+        });
+
+
+        /* =====================================================================
+           Functions
+           ===================================================================== */
+
+        function createDate(dateString) {
+            const d = dateString ? new Date(dateString) : new Date();
+            d.setHours(0, 0, 0, 0);
+            return d;
+        }
+
         function expandLog(log, rateLimit) {
             const startMeter = log[0][1];
-            const startDate = new Date(log[0][0]);
-            startDate.setHours(0, 0, 0, 0);
+            const startDate = createDate(log[0][0]);
 
             const expanded = log.map(item => {
-                const date = new Date(item[0]);
-                date.setHours(0, 0, 0, 0);
+                const date = createDate(item[0]);
                 const distance = Math.round(item[1] - startMeter);
                 const distanceLimit = Math.round((date - startDate) / (24 * 60 * 60 * 1000) * rateLimit);
 
@@ -28,11 +62,9 @@
             });
 
             // Create virtual item for today (unless last item is, in fact, today)
-            const today = new Date();
-            today.setHours(0, 0, 0, 0);
+            const today = createDate();
             const lastLogItem = expanded.slice(-1)[0];
             const lastLogDate = lastLogItem[0];
-            lastLogDate.setHours(0, 0, 0, 0);
 
             if (today > lastLogDate) {
                 const distance = Math.round(lastLogItem[1]);
@@ -42,19 +74,6 @@
             }
             return expanded;
         }
-    </script>
-
-    <script src="https://www.gstatic.com/charts/loader.js"></script>
-
-    <script>
-        const log = expandLog(LOG, RATE_LIMIT);
-
-        document.addEventListener('DOMContentLoaded', () => {
-            drawCredit(log);
-        });
-
-        google.charts.load('current', { packages: ['corechart', 'line'] });
-        google.charts.setOnLoadCallback(drawChart);
 
         function drawChart() {
 
@@ -82,10 +101,10 @@
             chart.draw(data, options);
         }
 
-        function drawCredit(log) {
+        function drawCredit(log, rateLimit) {
             const lastLogItem = log.slice(-1)[0];
             const distanceCredit = lastLogItem[2] - lastLogItem[1];
-            const timeCredit = distanceCredit / RATE_LIMIT;
+            const timeCredit = distanceCredit / rateLimit;
 
             if (distanceCredit < 0) {
                 const creditElement = document.querySelector('#credit');
@@ -99,6 +118,29 @@
             timeCreditElement.textContent = Math.round(timeCredit) + ' dgr';
 
         }
+
+        function drawPeriodCredit(log, rateLimit) {
+
+            const periodStartDate = log[0][0];
+            const periodEndDate = createDate(PERIOD_END);
+            const periodAvailable = Math.round((periodEndDate - periodStartDate) / (24 * 60 * 60 * 1000) * rateLimit);
+
+            const currentDate = createDate();
+            const currentUsed = log.slice(-1)[0][1];
+
+            const remainingDays = Math.round((periodEndDate - currentDate) / (24 * 60 * 60 * 1000));
+            const remainingDistance = Math.round(periodAvailable - currentUsed);
+            const remainingRate = Math.round(remainingDistance / remainingDays);
+
+            const periodDistanceCreditElement = document.querySelector('#period-distance-credit');
+            periodDistanceCreditElement.textContent = Math.round(remainingDistance / 10) + " mil";
+
+            const periodTimeCreditElement = document.querySelector('#period-time-credit');
+            periodTimeCreditElement.textContent = remainingDays + " dgr";
+
+            const periodRateCreditElement = document.querySelector('#period-rate-credit');
+            periodRateCreditElement.textContent = (remainingRate / 10).toPrecision(2) + " mil/dag";
+        }
     </script>
 
     <style>
@@ -111,15 +153,17 @@
             margin: 0 auto;
         }
 
-        #credit {
+        #credit,
+        #period-credit {
             display: flex;
             justify-content: center;
             margin-top: 2em;
         }
 
-        #credit-content {
+        #credit-content,
+        #period-credit-content {
             padding: 1em 1.8em;
-            border-radius: .9em;
+            border-radius: .6em;
             font-weight: bold;
             color: green;
             border: 2px solid green;
@@ -132,12 +176,27 @@
             background-color: rgba(255, 0, 0, .05);
         }
 
+        #period-credit-content {
+            color: #666;
+            border-color: #888;
+            background-color: rgba(0, 0, 0, .04);
+        }
+
         #credit-space {
             padding: 0 .4em;
+            position: relative;
+            top: -2px;
         }
 
         #chart {
             height: 480px;
+            margin-bottom: 3em;
+        }
+
+        #period-credit-divider {
+            padding: 0 .3em;
+            position: relative;
+            top: -2px;
         }
 
         #bottom-space {
@@ -152,11 +211,23 @@
         <div id="credit">
             <div id="credit-content">
                 <span id="distance-credit"></span>
-                <span id="credit-space">/</span>
+                <span id="credit-space">|</span>
                 <span id="time-credit"></span>
             </div>
         </div>
+
         <div id="chart"></div>
+
+        <div id="period-credit">
+            <div id="period-credit-content">
+                <span id="period-distance-credit"></span>
+                <span id="period-credit-divider">|</span>
+                <span id="period-time-credit"></span>
+                <span id="period-credit-divider">|</span>
+                <span id="period-rate-credit"></span>
+            </div>
+        </div>
+
         <div id="bottom-space"></div>
     </main>
 </body>
