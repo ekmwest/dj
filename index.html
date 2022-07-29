@@ -15,7 +15,7 @@
            Constants
            ===================================================================== */
 
-        const RATE_LIMIT = 15000 / 365;
+        const RATE_LIMIT = 1500 / 365;
         const PERIOD_END = "2023-07-08";
 
 
@@ -49,29 +49,41 @@
             return d;
         }
 
+        function kmToMil(km) {
+            return (km / 10);
+        }
+
+        function first(arr) {
+            return arr[0];
+        }
+
+        function last(arr) {
+            return arr[arr.length - 1];
+        }
+
         function expandLog(log, rateLimit) {
-            const startMeter = log[0][1];
-            const startDate = createDate(log[0][0]);
+            const startDate = createDate(first(log)[0]);
+            const startMeter = first(log)[1];
 
             const expanded = log.map(item => {
                 const date = createDate(item[0]);
-                const distance = Math.round(item[1] - startMeter);
-                const distanceLimit = Math.round((date - startDate) / (24 * 60 * 60 * 1000) * rateLimit);
+                const distance = kmToMil(item[1] - startMeter);
+                const distanceLimit = (date - startDate) / (24 * 60 * 60 * 1000) * rateLimit;
 
                 return [date, distance, distanceLimit];
             });
 
-            // Create virtual item for today (unless last item is, in fact, today)
+            // Virtual item for today (unless last expanded item is, in fact, today)
             const today = createDate();
-            const lastLogItem = expanded.slice(-1)[0];
-            const lastLogDate = lastLogItem[0];
+            const lastExpandedDate = last(expanded)[0];
 
-            if (today > lastLogDate) {
-                const distance = Math.round(lastLogItem[1]);
-                const distanceLimit = Math.round((today - startDate) / (24 * 60 * 60 * 1000) * rateLimit);
+            if (today > lastExpandedDate) {
+                const lastExpandedDistance = last(expanded)[1];
+                const distanceLimit = (today - startDate) / (24 * 60 * 60 * 1000) * rateLimit;
 
-                expanded.push([today, distance, distanceLimit])
+                expanded.push([today, lastExpandedDistance, distanceLimit]);
             }
+
             return expanded;
         }
 
@@ -102,7 +114,7 @@
         }
 
         function drawCredit(log, rateLimit) {
-            const lastLogItem = log.slice(-1)[0];
+            const lastLogItem = last(log);
             const distanceCredit = lastLogItem[2] - lastLogItem[1];
             const timeCredit = distanceCredit / rateLimit;
 
@@ -112,7 +124,7 @@
             }
 
             const distanceCreditElement = document.querySelector('#distance-credit');
-            distanceCreditElement.textContent = Math.round(distanceCredit / 10) + ' mil';
+            distanceCreditElement.textContent = Math.round(distanceCredit) + ' mil';
 
             const timeCreditElement = document.querySelector('#time-credit');
             timeCreditElement.textContent = Math.round(timeCredit) + ' dgr';
@@ -121,25 +133,25 @@
 
         function drawPeriodCredit(log, rateLimit) {
 
-            const periodStartDate = log[0][0];
+            const periodStartDate = first(log)[0];
             const periodEndDate = createDate(PERIOD_END);
-            const periodAvailable = Math.round((periodEndDate - periodStartDate) / (24 * 60 * 60 * 1000) * rateLimit);
+            const periodAvailable = (periodEndDate - periodStartDate) / (24 * 60 * 60 * 1000) * rateLimit;
 
             const currentDate = createDate();
-            const currentUsed = log.slice(-1)[0][1];
+            const currentUsedDistance = last(log)[1];
 
-            const remainingDays = Math.round((periodEndDate - currentDate) / (24 * 60 * 60 * 1000));
-            const remainingDistance = Math.round(periodAvailable - currentUsed);
-            const remainingRate = Math.round(remainingDistance / remainingDays);
+            const remainingDays = (periodEndDate - currentDate) / (24 * 60 * 60 * 1000);
+            const remainingDistance = periodAvailable - currentUsedDistance;
+            const remainingRate = remainingDistance / remainingDays;
 
             const periodDistanceCreditElement = document.querySelector('#period-distance-credit');
-            periodDistanceCreditElement.textContent = Math.round(remainingDistance / 10) + " mil";
+            periodDistanceCreditElement.textContent = Math.round(remainingDistance) + " mil";
 
             const periodTimeCreditElement = document.querySelector('#period-time-credit');
             periodTimeCreditElement.textContent = remainingDays + " dgr";
 
             const periodRateCreditElement = document.querySelector('#period-rate-credit');
-            periodRateCreditElement.textContent = (remainingRate / 10).toPrecision(2) + " mil/dag";
+            periodRateCreditElement.textContent = remainingRate.toPrecision(2) + " mil/dag";
         }
     </script>
 
@@ -194,7 +206,7 @@
         }
 
         #period-credit-divider {
-            padding: 0 .3em;
+            padding: 0 .4em;
             position: relative;
             top: -2px;
         }
