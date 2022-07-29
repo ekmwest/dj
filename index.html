@@ -108,7 +108,7 @@
                     minorGridlines: { count: 0 }
                 },
                 colors: ['#f55', '#383'],
-                areaOpacity: 0.05,
+                areaOpacity: 0.08,
                 legend: 'none',
                 chartArea: { 'width': '85%', 'height': '85%' }
             };
@@ -179,12 +179,31 @@
 
         #credit-content,
         #period-credit-content {
-            padding: 1em 1.8em;
-            border-radius: .6em;
+            display: flex;
+            border-radius: .4em;
             font-weight: bold;
-            color: green;
-            border: 2px solid green;
-            background-color: rgba(0, 255, 0, .04);
+            color: #383;
+            border: 2px solid #383;
+            background-color: rgba(48, 128, 48, .03);
+        }
+
+        #credit-content > *,
+        #period-credit-content > * {
+            padding: .5em 1.2em;
+            border-right-width: inherit;
+            border-right-color: inherit;
+            border-right-style: inherit;
+            text-align: center;
+            width: 70px;
+        }
+
+        #period-credit-content > * {
+            width: 96px;
+        }
+
+        #credit-content > *:last-child,
+        #period-credit-content > *:last-child {
+            border-right: 0;
         }
 
         #credit.NEGATIVE #credit-content {
@@ -194,7 +213,7 @@
         }
 
         #period-credit-content {
-            color: #555;
+            color: #666;
             border-color: #888;
             background-color: rgba(0, 0, 0, .03);
         }
@@ -228,7 +247,6 @@
         <div id="credit">
             <div id="credit-content">
                 <span id="distance-credit"></span>
-                <span id="credit-space">|</span>
                 <span id="time-credit"></span>
             </div>
         </div>
@@ -238,9 +256,7 @@
         <div id="period-credit">
             <div id="period-credit-content">
                 <span id="period-distance-credit"></span>
-                <span id="period-credit-divider">|</span>
                 <span id="period-time-credit"></span>
-                <span id="period-credit-divider">|</span>
                 <span id="period-rate-credit"></span>
             </div>
         </div>
