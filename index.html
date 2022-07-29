@@ -99,18 +99,21 @@
             var options = {
                 hAxis: {
                     title: '',
-                    textStyle: { fontName: 'Raleway' }
+                    textStyle: { fontName: 'Raleway', bold: true },
+                    minorGridlines: { count: 0 }
                 },
                 vAxis: {
                     title: '',
-                    textStyle: { fontName: 'Raleway' }
+                    textStyle: { fontName: 'Raleway', bold: true },
+                    minorGridlines: { count: 0 }
                 },
-                colors: ['#999', 'red'],
+                colors: ['#f55', '#383'],
+                areaOpacity: 0.05,
                 legend: 'none',
                 chartArea: { 'width': '85%', 'height': '85%' }
             };
 
-            var chart = new google.visualization.LineChart(document.getElementById('chart'));
+            var chart = new google.visualization.AreaChart(document.getElementById('chart'));
 
             chart.draw(data, options);
         }
@@ -186,13 +189,13 @@
 
         #credit.NEGATIVE #credit-content {
             color: red;
-            border-color: red;
+            border-color: #f55;
             background-color: rgba(255, 0, 0, .05);
         }
 
         #period-credit-content {
             color: #666;
-            border-color: #999;
+            border-color: #888;
             background-color: rgba(0, 0, 0, .03);
         }
 
