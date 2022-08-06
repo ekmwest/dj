@@ -1,7 +1,8 @@
-<html>
+<!DOCTYPE html>
+<html lang="en-US">
 
 <head>
-    <meta charset="UTF-8">
+    <meta charset="utf-8">
     <title>DJ</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="robots" content="noindex" />
@@ -15,8 +16,9 @@
            Constants
            ===================================================================== */
 
-        const RATE_LIMIT = 1500 / 365;
+        const PERIOD_START = "2022-07-07";
         const PERIOD_END = "2023-07-08";
+        const RATE_LIMIT = 1500 / 365;
 
 
         /* =====================================================================
@@ -36,6 +38,7 @@
         document.addEventListener('DOMContentLoaded', () => {
             drawCredit(log, RATE_LIMIT);
             drawPeriodCredit(log, RATE_LIMIT);
+            drawPeriodConsumed(log, RATE_LIMIT);
         });
 
 
@@ -158,6 +161,24 @@
             const periodRateCreditElement = document.querySelector('#period-rate-credit');
             periodRateCreditElement.textContent = remainingRate.toPrecision(2) + " mil/dag";
         }
+
+        function drawPeriodConsumed(log, rateLimit) {
+            const periodStartDate = first(log)[0];
+            const currentDate = createDate();
+
+            const consumedDistance = last(log)[1];
+            const consumedDays = (currentDate - periodStartDate) / (24 * 60 * 60 * 1000);
+            const consumedRate = consumedDistance / consumedDays;
+
+            const periodDistanceConsumedElement = document.querySelector('#period-distance-consumed');
+            periodDistanceConsumedElement.textContent = Math.round(consumedDistance) + " mil";
+
+            const periodTimeConsumedElement = document.querySelector('#period-time-consumed');
+            periodTimeConsumedElement.textContent = consumedDays + " dgr";
+
+            const periodRateConsumedElement = document.querySelector('#period-rate-consumed');
+            periodRateConsumedElement.textContent = consumedRate.toPrecision(2) + " mil/dag";
+        }
     </script>
 
     <style>
@@ -170,7 +191,15 @@
             margin: 3em auto;
         }
 
+        h2 {
+            text-align: center;
+            color: #333;
+            margin-bottom: .5em;
+            font-size: 1.1em;
+        }
+
         #credit,
+        #period-consumed,
         #period-credit {
             display: flex;
             justify-content: center;
@@ -178,6 +207,7 @@
         }
 
         #credit-content,
+        #period-consumed-content,
         #period-credit-content {
             display: flex;
             align-items: center;
@@ -190,6 +220,7 @@
         }
 
         #credit-content > *,
+        #period-consumed-content > *,
         #period-credit-content > * {
             border-right-width: inherit;
             border-right-color: inherit;
@@ -199,12 +230,14 @@
             width: 100px;
         }
 
+        #period-consumed-content > *,
         #period-credit-content > * {
             padding: .7em 0;
             width: 120px;
         }
 
         #credit-content > *:last-child,
+        #period-consumed-content > *:last-child,
         #period-credit-content > *:last-child {
             border-right: 0;
         }
@@ -215,10 +248,11 @@
             background-color: rgba(255, 0, 0, .05);
         }
 
+        #period-consumed-content,
         #period-credit-content {
             color: #555;
-            border-color: #888;
-            background-color: rgba(0, 0, 0, .03);
+            border-color: #777;
+            background-color: rgba(0, 0, 0, .06);
         }
 
         #credit-space {
@@ -247,6 +281,8 @@
 
 <body>
     <main>
+
+        <h2>Credit</h2>
         <div id="credit">
             <div id="credit-content">
                 <span id="distance-credit"></span>
@@ -256,7 +292,17 @@
 
         <div id="chart"></div>
 
-        <div id="period-credit">
+        <h2>From — 7 Jul 2022</h2>
+        <div id="period-consumed">    
+            <div id="period-consumed-content">
+                <span id="period-distance-consumed"></span>
+                <span id="period-time-consumed"></span>
+                <span id="period-rate-consumed"></span>
+            </div>
+        </div>
+
+        <h2 style="margin-top: 3.5em;">To — 8 Jul 2023</h2>
+        <div id="period-credit">    
             <div id="period-credit-content">
                 <span id="period-distance-credit"></span>
                 <span id="period-time-credit"></span>
@@ -265,6 +311,7 @@
         </div>
 
         <div id="bottom-space"></div>
+
     </main>
 </body>
 
