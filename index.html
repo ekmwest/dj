@@ -156,7 +156,7 @@
             periodDistanceCreditElement.textContent = Math.round(remainingDistance) + " mil";
 
             const periodTimeCreditElement = document.querySelector('#period-time-credit');
-            periodTimeCreditElement.textContent = remainingDays + " dgr";
+            periodTimeCreditElement.textContent = Math.round(remainingDays) + " dgr";
 
             const periodRateCreditElement = document.querySelector('#period-rate-credit');
             periodRateCreditElement.textContent = remainingRate.toPrecision(2) + " mil/dag";
@@ -174,7 +174,7 @@
             periodDistanceConsumedElement.textContent = Math.round(consumedDistance) + " mil";
 
             const periodTimeConsumedElement = document.querySelector('#period-time-consumed');
-            periodTimeConsumedElement.textContent = consumedDays + " dgr";
+            periodTimeConsumedElement.textContent = Math.round(consumedDays) + " dgr";
 
             const periodRateConsumedElement = document.querySelector('#period-rate-consumed');
             periodRateConsumedElement.textContent = consumedRate.toPrecision(2) + " mil/dag";
