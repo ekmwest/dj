@@ -134,9 +134,6 @@
             const distanceCreditElement = document.querySelector('#distance-credit');
             distanceCreditElement.textContent = Math.round(distanceCredit) + ' mil';
 
-            const timeCreditElement = document.querySelector('#time-credit');
-            timeCreditElement.textContent = Math.round(timeCredit) + ' dgr';
-
         }
 
         function drawPeriodCredit(log, rateLimit) {
@@ -155,9 +152,6 @@
             const periodDistanceCreditElement = document.querySelector('#period-distance-credit');
             periodDistanceCreditElement.textContent = Math.round(remainingDistance) + " mil";
 
-            const periodTimeCreditElement = document.querySelector('#period-time-credit');
-            periodTimeCreditElement.textContent = Math.round(remainingDays) + " dgr";
-
             const periodRateCreditElement = document.querySelector('#period-rate-credit');
             periodRateCreditElement.textContent = remainingRate.toPrecision(2) + " mil/dag";
         }
@@ -172,9 +166,6 @@
 
             const periodDistanceConsumedElement = document.querySelector('#period-distance-consumed');
             periodDistanceConsumedElement.textContent = Math.round(consumedDistance) + " mil";
-
-            const periodTimeConsumedElement = document.querySelector('#period-time-consumed');
-            periodTimeConsumedElement.textContent = Math.round(consumedDays) + " dgr";
 
             const periodRateConsumedElement = document.querySelector('#period-rate-consumed');
             periodRateConsumedElement.textContent = consumedRate.toPrecision(2) + " mil/dag";
@@ -286,7 +277,6 @@
         <div id="credit">
             <div id="credit-content">
                 <span id="distance-credit"></span>
-                <span id="time-credit"></span>
             </div>
         </div>
 
@@ -296,7 +286,6 @@
         <div id="period-credit">    
             <div id="period-credit-content">
                 <span id="period-distance-credit"></span>
-                <span id="period-time-credit"></span>
                 <span id="period-rate-credit"></span>
             </div>
         </div>
@@ -305,7 +294,6 @@
         <div id="period-consumed">    
             <div id="period-consumed-content">
                 <span id="period-distance-consumed"></span>
-                <span id="period-time-consumed"></span>
                 <span id="period-rate-consumed"></span>
             </div>
         </div>
