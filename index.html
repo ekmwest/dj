@@ -153,7 +153,7 @@
             periodDistanceCreditElement.textContent = Math.round(remainingDistance) + " mil";
 
             const periodRateCreditElement = document.querySelector('#period-rate-credit');
-            periodRateCreditElement.textContent = remainingRate.toPrecision(2) + " mil/dag";
+            periodRateCreditElement.textContent = Math.round(remainingRate).toFixed() + " mil/dag";
         }
 
         function drawPeriodConsumed(log, rateLimit) {
